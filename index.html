@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Turf Manager</title>
+<style>
+:root{--bg:#eef5ea;--sf:#fff;--tx:#14301a;--mu:#55695a;--ac:#2e7d32;--ac2:#dcefd7;--bd:#cfdecb;--bad:#c62828;--warn:#f9a825;--fs:17px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a11;--sf:#172318;--tx:#e9f3e7;--mu:#9db3a0;--ac:#6fcf73;--ac2:#213a24;--bd:#2c3f2e;--bad:#ff8a80}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:var(--fs)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Noto Sans Sinhala","Noto Sans Tamil","Iskoola Pota",system-ui,sans-serif;line-height:1.55;padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+main{max-width:640px;margin:0 auto;padding:10px 12px}
+header{display:flex;align-items:center;gap:8px;justify-content:space-between}
+h1{font-size:1.15rem;margin:4px 0;display:flex;gap:8px;align-items:center}
+.tools{display:flex;gap:6px}
+.tools select,.tools button{width:auto;padding:6px 10px;border-radius:10px;border:1px solid var(--bd);background:var(--sf);color:var(--tx);font:inherit;font-size:.9rem}
+section{display:none}
+section.on{display:block}
+.panel{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:14px;margin-bottom:12px}
+.ttl{font-size:1.15rem;font-weight:700;margin:0 0 6px;display:flex;gap:8px;align-items:center}
+label{display:block;font-size:.9rem;color:var(--mu);margin:10px 0 4px;font-weight:600}
+input,select{width:100%;padding:12px;border:2px solid var(--bd);border-radius:12px;background:var(--bg);color:var(--tx);font:inherit}
+input:focus,select:focus{outline:none;border-color:var(--ac)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--ac);color:#fff;border:0;border-radius:14px;padding:14px;font:inherit;font-weight:700;font-size:1.05rem;margin-top:14px;cursor:pointer}
+.btn:active{transform:scale(.98)}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1 1 140px}
+.card{border:1px solid var(--bd);border-radius:14px;padding:12px;margin-top:10px;background:var(--bg)}
+.item{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.line{display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:1rem}
+.big{font-size:1.35rem;font-weight:800}
+.pos{color:var(--ac)}.neg{color:var(--bad)}
+.mu,small{color:var(--mu)}
+.x{background:none;border:0;font-size:1.5rem;cursor:pointer;padding:4px 8px}
+.tag{display:inline-block;padding:2px 10px;border-radius:12px;background:var(--ac2);font-size:.8rem;margin:2px 4px 2px 0}
+.tag.bad{background:var(--bad);color:#fff}
+.bar{height:12px;border-radius:8px;background:var(--ac2);overflow:hidden;margin-top:3px}
+.bar i{display:block;height:100%;background:var(--ac)}
+details{border:1px solid var(--bd);border-radius:14px;margin-top:10px;background:var(--bg)}
+summary{padding:14px;cursor:pointer;font-weight:700;font-size:1.05rem}
+details>div{padding:0 14px 14px}
+a{color:var(--ac);font-weight:700}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--sf);border-top:1px solid var(--bd);padding:4px 2px calc(4px + env(safe-area-inset-bottom,0px));z-index:10;overflow-x:auto}
+.tabs button{flex:1 1 0;min-width:0;border:0;background:none;color:var(--mu);font:inherit;font-size:.6rem;padding:4px 1px;border-radius:12px;cursor:pointer;overflow:hidden;white-space:nowrap}
+.tabs button b{display:block;height:30px;line-height:1;font-weight:400}.tabs button b svg{display:block;margin:0 auto}
+.tabs button.on{background:var(--ac2);color:var(--ac);font-weight:700}
+.me{display:block;width:150px;height:150px;border-radius:50%;object-fit:cover;margin:6px auto 10px;border:4px solid var(--ac2)}
+.who{text-align:center;font-size:1.2rem;font-weight:800;margin:0}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.pad button{padding:14px 0;border:1px solid var(--bd);border-radius:12px;background:var(--sf);color:var(--tx);font:inherit;font-size:1.2rem;cursor:pointer}
+.pad .op{background:var(--ac2);color:var(--ac);font-weight:700}
+#c-disp{text-align:right;padding:10px 12px;border:2px solid var(--bd);border-radius:12px;background:var(--bg);overflow-x:auto;min-height:3rem}
+.wx{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.wd{flex:0 0 96px;text-align:center;border:1px solid var(--bd);border-radius:14px;padding:8px 4px;background:var(--bg)}
+.wd .e{font-size:2.2rem;line-height:1.2}
+.alert{border-radius:14px;padding:12px;margin-top:10px;font-weight:700;background:var(--ac2)}
+.alert.w{background:var(--warn);color:#222}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1><span>🌱</span><span data-i="title"></span> <small style="font-size:.7rem;background:#2e7d32;color:#fff;border-radius:8px;padding:1px 7px">v7</small></h1>
+<div class="tools"><button id="fs" aria-label="Text size">🔠</button><select id="lang"><option value="0">සිංහල</option><option value="1">English</option><option value="2">தமிழ்</option></select></div>
+</header>
+
+<!-- HOME -->
+<section id="s0">
+<div class="panel">
+<div class="ttl">📐 <span data-i="area"></span></div>
+<div class="row"><div><label>🌿 <span data-i="m"></span> (<span data-i="sqft"></span>)</label><input type="number" inputmode="decimal" id="areaM" min="0"></div><div><label>🍀 <span data-i="a"></span> (<span data-i="sqft"></span>)</label><input type="number" inputmode="decimal" id="areaA" min="0"></div></div>
+</div>
+<div id="sum"></div>
+<div class="panel"><div class="ttl">📊 <span data-i="breakdown"></span></div><div id="brk"></div></div>
+</section>
+
+<!-- MONEY -->
+<section id="s1">
+<details><summary>🧮 <span data-i="calc"></span></summary><div>
+<div id="c-disp" class="big">0</div>
+<div class="pad">
+<button data-a="calc" data-v="7">7</button><button data-a="calc" data-v="8">8</button><button data-a="calc" data-v="9">9</button><button data-a="calc" data-v="/" class="op">÷</button>
+<button data-a="calc" data-v="4">4</button><button data-a="calc" data-v="5">5</button><button data-a="calc" data-v="6">6</button><button data-a="calc" data-v="*" class="op">×</button>
+<button data-a="calc" data-v="1">1</button><button data-a="calc" data-v="2">2</button><button data-a="calc" data-v="3">3</button><button data-a="calc" data-v="-" class="op">−</button>
+<button data-a="calc" data-v="0">0</button><button data-a="calc" data-v=".">.</button><button data-a="calc" data-v="C" class="op">C</button><button data-a="calc" data-v="+" class="op">+</button>
+<button data-a="calc" data-v="=" class="op" style="grid-column:span 2">=</button>
+<button data-a="calc" data-v="use" style="grid-column:span 2;background:var(--ac);color:#fff;font-size:1rem">✅ <span data-i="useAmt"></span></button>
+</div></div></details>
+
+<div class="panel">
+<div class="ttl">💰 <span data-i="addRec"></span></div>
+<div class="row"><div><label>📅 <span data-i="date"></span></label><input type="date" id="r-d"></div><div><label>↕️ <span data-i="kind"></span></label><select id="r-k"></select></div></div>
+<div class="row"><div><label>🌿 <span data-i="grass"></span></label><select id="r-t"></select></div><div><label>🏷️ <span data-i="cat"></span></label><select id="r-c"></select></div></div>
+<div class="row"><div><label>💰 <span data-i="amt"></span></label><input type="number" inputmode="decimal" id="r-a" min="0"></div><div><label>📝 <span data-i="note"></span></label><input id="r-n"></div></div>
+<button class="btn" data-a="addR">➕ <span data-i="add"></span></button>
+</div>
+<div id="r-list"></div>
+</section>
+
+<!-- FERT -->
+<section id="s2">
+<div class="panel">
+<div class="ttl">🧪 <span data-i="fertTitle"></span></div>
+<div class="row"><div><label>📅 <span data-i="date"></span></label><input type="date" id="f-d"></div><div><label>🌿 <span data-i="grass"></span></label><select id="f-t"></select></div></div>
+<div class="row"><div><label>🧴 <span data-i="fname"></span></label><input id="f-n"></div><div><label>⏱️ <span data-i="interval"></span></label><input type="number" inputmode="numeric" id="f-i" value="45" min="1"></div></div>
+<button class="btn" data-a="addF">➕ <span data-i="add"></span></button>
+</div>
+<div id="f-list"></div>
+</section>
+
+<!-- DISEASE -->
+<section id="s3"><div class="panel"><p class="mu" data-i="disNote"></p><div id="dis"></div></div></section>
+
+<!-- WEATHER -->
+<section id="s4">
+<div class="panel">
+<div class="ttl">🌦️ <span data-i="wxTitle"></span></div>
+<label>📍 <span data-i="district"></span></label><select id="w-d"></select>
+<div id="wx-box"><p class="mu" data-i="loading"></p></div>
+<p><a href="https://www.meteo.gov.lk" target="_blank" rel="noopener">🌐 meteo.gov.lk</a></p>
+</div>
+</section>
+
+<!-- MARKET -->
+<section id="s5">
+<div class="panel">
+<p class="mu" data-i="mkInfo"></p>
+<div id="mk-form">
+<div class="row"><div><label>🌿 <span data-i="grass"></span></label><select id="m-t"></select></div><div><label>💰 <span data-i="price"></span></label><input type="number" inputmode="decimal" id="m-p" min="0"></div></div>
+<div class="row"><div><label>📦 <span data-i="qty"></span></label><input type="number" inputmode="decimal" id="m-q" min="0"></div><div><label>📍 <span data-i="dist"></span></label><input id="m-d"></div></div>
+<div class="row"><div><label>👤 <span data-i="sname"></span></label><input id="m-n"></div><div><label>📞 <span data-i="phone"></span></label><input id="m-ph" type="tel" inputmode="tel"></div></div>
+<label>📝 <span data-i="note"></span></label><input id="m-no">
+<button class="btn" data-a="post">📢 <span data-i="post"></span></button>
+</div>
+<p class="mu" id="mk-msg"></p>
+</div>
+<div class="row"><div><select id="m-f"></select></div><div><input id="m-s"></div></div>
+<div id="mk-list"></div>
+</section>
+
+<!-- INFO -->
+<section id="s6">
+<div class="panel">
+<img class="me" alt="W. Suranga Chaminda" src="me.jpg">
+<p class="who">W. Suranga Chaminda</p>
+<p class="mu" style="text-align:center">👨‍🌾 <span data-i="role"></span></p>
+</div>
+<div class="panel"><div class="ttl">⚠️ <span data-i="discTitle"></span></div><p data-i="disc"></p></div>
+</section>
+</main>
+<nav class="tabs" id="tabs"></nav>
+
+<script>
+window.onerror=function(m,u,l){var d=document.createElement("div");d.style.cssText="position:fixed;top:0;left:0;right:0;background:#c62828;color:#fff;padding:8px;z-index:99;font-size:12px";d.textContent="Error: "+m+" (line "+l+")";document.body.appendChild(d)};
+/* ===== Marketplace server (optional) =====
+   Paste your Firebase Realtime Database URL here, e.g.
+   "https://my-turf-app-default-rtdb.firebaseio.com"
+   Leave empty to disable the marketplace. */
+const FB_URL="";
+
+const $=id=>document.getElementById(id);
+function ld(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const today=()=>ymd(new Date());
+
+/* ===== translations [si, en, ta] ===== */
+const D={
+title:["තෘණ ගොවිපළ කළමනාකරු","Turf Farm Manager","புல் பண்ணை மேலாளர்"],
+t_home:["මුල්පිටුව","Home","முகப்பு"],t_money:["මුදල්","Money","பணம்"],t_fert:["පොහොර","Fertilizer","உரம்"],t_dis:["රෝග","Diseases","நோய்"],t_wx:["කාලගුණය","Weather","வானிலை"],t_mk:["වෙළඳපොළ","Market","சந்தை"],t_info:["තොරතුරු","Info","தகவல்"],
+area:["තෘණ ප්‍රමාණය","Turf area","புல் பரப்பு"],sqft:["වර්ග අඩි","sq ft","சதுர அடி"],
+m:["Malaysian","Malaysian","மலேசியன்"],a:["Australian","Australian","ஆஸ்திரேலியன்"],g:["පොදු","General","பொது"],
+income:["ආදායම","Income","வருமானம்"],expense:["වියදම","Expenses","செலவு"],profit:["ලාභය","Profit","இலாபம்"],loss:["පාඩුව","Loss","நட்டம்"],
+total:["මුළු එකතුව","Total","மொத்தம்"],perSq:["වර්ග අඩියකට ලාභය","Profit per sq ft","சதுர அடிக்கு இலாபம்"],
+breakdown:["වියදම් බෙදීම","Where money went","செலவு பிரிவு"],
+calc:["කැල්කියුලේටරය","Calculator","கணிப்பான்"],useAmt:["මුදලට යොදන්න","Use as amount","தொகையாக"],
+addRec:["ගනුදෙනුවක් එකතු කරන්න","Add an entry","பதிவு சேர்"],
+date:["දිනය","Date","திகதி"],kind:["වර්ගය","Type","வகை"],grass:["තෘණ වර්ගය","Grass type","புல் வகை"],cat:["ප්‍රවර්ගය","Category","வகைப்பாடு"],amt:["මුදල (රු.)","Amount (Rs.)","தொகை (ரூ.)"],note:["සටහන","Note","குறிப்பு"],add:["එකතු කරන්න","Add","சேர்"],
+exp:["වියදම","Expense","செலவு"],inc:["ආදායම","Income","வருமானம்"],
+coir:["කොහුබත්","Coir dust","தென்னை நார்க்கழிவு"],poly:["ඉටිකොළ","Polythene sheets","பாலிதீன் தாள்"],fert:["පොහොර","Fertilizer","உரம்"],wage:["සේවක කුලී","Worker wages","தொழிலாளர் கூலி"],plantw:["හිටවීම් කුලී","Planting wages","நடவு கூலி"],rent:["වතු කුලී","Land rent","நில வாடகை"],elec:["විදුලි බිල","Electricity bill","மின் கட்டணம்"],other:["වෙනත්","Other","மற்றவை"],sale:["තෘණ විකිණීම","Turf sales","புல் விற்பனை"],
+none:["තවම සටහන් නැත.","Nothing yet.","பதிவுகள் இல்லை."],
+fertTitle:["පොහොර යෙදීම","Fertilizer schedule","உரமிடல்"],fname:["පොහොර නම","Fertilizer name","உரத்தின் பெயர்"],interval:["පොහොර අතර දින ගණන","Days between applications","உரமிடல் இடைவெளி (நாட்கள்)"],
+next:["ඊළඟ දිනය","Next due","அடுத்த திகதி"],overdue:["ප්‍රමාදයි (දින)","Overdue (days)","தாமதம் (நாட்கள்)"],inDays:["තව දින","In days","இன்னும் நாட்கள்"],todayT:["අද!","Today!","இன்று!"],lastOn:["අන්තිමට යෙදූ දිනය","Last applied","கடைசியாக இட்டது"],
+sym:["ලක්ෂණ","Symptoms","அறிகுறிகள்"],trt:["ප්‍රතිකාර","Treatment","சிகிச்சை"],
+disNote:["මෙය සාමාන්‍ය මග පෙන්වීමකි. බෙහෙත් යෙදීමේදී ලේබලය අනුගමනය කර, අවශ්‍ය නම් කෘෂිකර්ම නිලධාරියෙකුගෙන් විමසන්න.","General guidance only. Follow product labels and ask an agriculture officer when needed.","பொது வழிகாட்டல் மட்டுமே. லேபிளைப் பின்பற்றி, தேவைப்பட்டால் விவசாய அதிகாரியிடம் கேளுங்கள்."],
+wxTitle:["ඉදිරි දින 5 කාලගුණය","5-day weather","5 நாள் வானிலை"],district:["දිස්ත්‍රික්කය","District","மாவட்டம்"],loading:["පූරණය වෙමින්...","Loading...","ஏற்றுகிறது..."],
+wxErr:["කාලගුණ දත්ත ගත නොහැක. අන්තර්ජාලය පරීක්ෂා කරන්න.","Could not load weather. Check your internet.","வானிலை பெற முடியவில்லை. இணையத்தை சரிபார்க்கவும்."],
+rain:["වැසි","Rain","மழை"],
+advRain:["🌧️ ළඟදීම වැසි! පොහොර සහ බෙහෙත් යොදන්න එපා. වතුර බැස යන්න සලස්වන්න.","🌧️ Heavy rain soon! Do not apply fertilizer or chemicals. Check drainage.","🌧️ விரைவில் கனமழை! உரம், மருந்து இட வேண்டாம். வடிகாலை பார்க்கவும்."],
+advDry:["☀️ දින කිහිපයක් වියළියි. උදේ හෝ සවස වතුර දමන්න.","☀️ Dry days ahead. Water in the morning or evening.","☀️ வறண்ட நாட்கள். காலை அல்லது மாலை நீர் ஊற்றவும்."],
+advOk:["🌤️ කාලගුණය සාමාන්‍යයි. පොහොර යෙදීමට සුදුසුයි.","🌤️ Normal weather. Good time for fertilizing.","🌤️ சாதாரண வானிலை. உரமிட ஏற்ற நேரம்."],
+mkInfo:["විකිණීමට ඇති තෘණ පළ කර, අනෙක් වැවිලි කරුවන්ගේ දැන්වීම් බලන්න. ඔබ දෙන දුරකථන අංකය සියලු දෙනාට පෙනේ.","Post turf for sale and see other growers' listings. Your phone number is visible to everyone.","விற்பனை புல்லை பதிவிடுங்கள்; பிறர் விளம்பரங்களைப் பாருங்கள். உங்கள் தொலைபேசி எண் அனைவருக்கும் தெரியும்."],
+price:["මිල (වර්ග අඩියකට රු.)","Price (Rs. per sq ft)","விலை (சதுர அடிக்கு ரூ.)"],qty:["ප්‍රමාණය (වර්ග අඩි)","Quantity (sq ft)","அளவு (சதுர அடி)"],dist:["දිස්ත්‍රික්කය / ප්‍රදේශය","District / area","மாவட்டம் / பகுதி"],sname:["ඔබේ නම / ව්‍යාපාරය","Your name / business","உங்கள் பெயர் / வணிகம்"],phone:["දුරකථන අංකය","Phone number","தொலைபேசி எண்"],post:["දැන්වීම පළ කරන්න","Post listing","விளம்பரம் பதிவிடு"],
+mkOff:["වෙළඳපොළ තවම සක්‍රිය කර නැත (සර්වර් සැකසුම අවශ්‍යයි).","Marketplace is not set up yet (server setup needed).","சந்தை இன்னும் அமைக்கப்படவில்லை (சர்வர் தேவை)."],
+mkReq:["මිල, ප්‍රමාණය, ප්‍රදේශය සහ දුරකථන අංකය අවශ්‍යයි.","Price, quantity, area and phone are required.","விலை, அளவு, பகுதி, தொலைபேசி தேவை."],
+mkErr:["සම්බන්ධ විය නොහැක. පසුව උත්සාහ කරන්න.","Could not connect. Try again later.","இணைக்க முடியவில்லை. பிறகு முயற்சிக்கவும்."],posted:["දැන්වීම පළ විය ✅","Listing posted ✅","விளம்பரம் பதிவிடப்பட்டது ✅"],all:["සියල්ල","All","அனைத்தும்"],search:["ප්‍රදේශය/නම සොයන්න","Search area/name","தேடு"],call:["අමතන්න","Call","அழை"],
+role:["මෙම ඇප් එකේ නිර්මාතෘ","Creator of this app","இந்த செயலியை உருவாக்கியவர்"],
+discTitle:["වගකීම් වලින් ඉවත් වීම","Disclaimer","பொறுப்புத் துறப்பு"],
+disc:["මෙම ඇප් එකේ ඇති රෝග සහ ප්‍රතිකාර තොරතුරු, ගණනය කිරීම් සහ අනෙකුත් දත්ත සාමාන්‍ය මග පෙන්වීමක් පමණි; ඒවායේ නිවැරදිභාවය ගැන සහතික නොවේ. වෙළඳපොළේ දැන්වීම් පළ කරන්නේ භාවිතා කරන්නන් විසිනි. ගනුදෙනු, මිල, තෘණ ගුණාත්මකභාවය සහ ඒවායින් වන ඕනෑම පාඩුවක් සම්බන්ධයෙන් නිර්මාතෘ වගකියන්නේ නැත. මිලදී ගැනීමට හෝ බෙහෙත් යෙදීමට පෙර ඔබම තහවුරු කරගන්න; අවශ්‍ය නම් කෘෂිකර්ම නිලධාරියෙකුගෙන් විමසන්න.","The disease and treatment information, calculations and other data in this app are general guidance only and are not guaranteed to be accurate. Marketplace listings are posted by users. The creator takes no responsibility for transactions, prices, turf quality or any loss arising from using this app. Verify everything yourself before buying or applying any treatment, and consult an agriculture officer when needed.","இந்த செயலியில் உள்ள நோய், சிகிச்சை தகவல்கள், கணக்கீடுகள் மற்றும் பிற தரவுகள் பொது வழிகாட்டல் மட்டுமே; அவற்றின் துல்லியத்திற்கு உத்தரவாதம் இல்லை. சந்தை விளம்பரங்களை பயனர்களே பதிவிடுகின்றனர். பரிவர்த்தனைகள், விலைகள், புல்லின் தரம் அல்லது இந்த செயலியைப் பயன்படுத்துவதால் ஏற்படும் எந்த இழப்புக்கும் உருவாக்குநர் பொறுப்பல்ல. வாங்குவதற்கு அல்லது சிகிச்சை அளிப்பதற்கு முன் நீங்களே சரிபார்த்து, தேவைப்பட்டால் விவசாய அதிகாரியிடம் கேளுங்கள்."]
+};
+const DIS=[
+{i:"🟤",n:["දුඹුරු පැල්ලම් (Brown patch)","Brown patch","பழுப்பு திட்டுகள்"],s:["තෘණ වෘත්තාකාර දුඹුරු පැල්ලම් ලෙස මැරී යයි. තෙතමනය සහ වැසි කාලයේ වැඩියි.","Circular brown dead patches, worse in wet, humid weather.","வட்டவடிவ பழுப்பு திட்டுகளாக புல் காய்கிறது. ஈரப்பதத்தில் அதிகம்."],t:["වතුර දැමීම අඩු කර උදේ පමණක් දමන්න. ජලය බැස යන්න සලස්වන්න. නයිට්‍රජන් පොහොර අඩු කරන්න. දිලීර නාශකයක් (ලේබලය අනුව) යොදන්න.","Water less, only in the morning. Improve drainage. Reduce nitrogen fertilizer. Apply a fungicide as per label.","காலையில் மட்டும் குறைவாக நீர் ஊற்றவும். வடிகால் மேம்படுத்தவும். நைட்ரஜன் உரத்தை குறைக்கவும். லேபிளின்படி பூஞ்சைக்கொல்லி இடவும்."]},
+{i:"🐛",n:["සේනා දළඹුවා (Armyworm)","Armyworm","படைப்புழு"],s:["තෘණ රාත්‍රියේ කා දමයි. පැල්ලම් ඉක්මනින් පැතිරේ. කුරුල්ලන් රොක් වෙයි.","Grass is eaten overnight; patches spread fast. Birds gather on the lawn.","இரவில் புல் தின்னப்படும்; திட்டுகள் வேகமாக பரவும். பறவைகள் கூடும்."],t:["සවස කෘමිනාශකයක් (ලේබලය අනුව) ඉසින්න. පසුදා වතුර දමන්න එපා. තෘණ කෙටි කර තබන්න.","Spray an insecticide in the evening as per label. Do not water the next day. Keep grass mowed short.","மாலையில் லேபிளின்படி பூச்சிக்கொல்லி தெளிக்கவும். மறுநாள் நீர் ஊற்ற வேண்டாம். புல்லை குறுகலாக வெட்டவும்."]},
+{i:"🟡",n:["කහ වීම (පෝෂක හිඟය)","Yellowing (nutrient deficiency)","மஞ்சளாதல்"],s:["දළු කහ පැහැ වෙයි, වර්ධනය අඩුයි.","Leaves turn yellow, slow growth.","இலைகள் மஞ்சளாகி வளர்ச்சி குறையும்."],t:["නයිට්‍රජන් සහ යකඩ අඩංගු පොහොර යොදන්න. පසේ pH පරීක්ෂා කරන්න. ජලය බැස යාම බලන්න.","Apply nitrogen and iron-rich fertilizer. Test soil pH. Check drainage.","நைட்ரஜன், இரும்பு உரம் இடவும். மண் pH சோதிக்கவும். வடிகாலை பார்க்கவும்."]},
+{i:"🌾",n:["වල් පැළ","Weeds","களைகள்"],s:["තෘණ අතර වෙනත් පැළ වර්ධනය වේ.","Other plants grow among the turf.","புல்லுக்கிடையே பிற செடிகள் வளரும்."],t:["අතින් ගලවන්න. අවශ්‍ය නම් තෘණ වර්ගයට ගැලපෙන වල් නාශකයක් (ලේබලය අනුව) භාවිතා කරන්න.","Hand-pull. If needed, use a herbicide suited to your grass type, as per label.","கையால் பிடுங்கவும். தேவைப்பட்டால் புல் வகைக்கு ஏற்ற களைக்கொல்லியை லேபிளின்படி பயன்படுத்தவும்."]}];
+const WD=[["කොළඹ","Colombo","கொழும்பு",6.93,79.86],["ගම්පහ","Gampaha","கம்பஹா",7.09,79.99],["කළුතර","Kalutara","களுத்துறை",6.58,79.96],["මහනුවර","Kandy","கண்டி",7.29,80.63],["මාතලේ","Matale","மாத்தளை",7.47,80.62],["නුවරඑළිය","Nuwara Eliya","நுவரெலியா",6.97,80.77],["ගාල්ල","Galle","காலி",6.05,80.22],["මාතර","Matara","மாத்தறை",5.95,80.55],["හම්බන්තොට","Hambantota","அம்பாந்தோட்டை",6.12,81.12],["යාපනය","Jaffna","யாழ்ப்பாணம்",9.66,80.02],["කුරුණෑගල","Kurunegala","குருணாகல்",7.49,80.37],["පුත්තලම","Puttalam","புத்தளம்",8.03,79.83],["අනුරාධපුර","Anuradhapura","அனுராதபுரம்",8.31,80.40],["ත්‍රිකුණාමලය","Trincomalee","திருகோணமலை",8.57,81.23],["මඩකලපුව","Batticaloa","மட்டக்களப்பு",7.72,81.70],["බදුල්ල","Badulla","பதுளை",6.99,81.06],["රත්නපුර","Ratnapura","இரத்தினபுரி",6.68,80.40],["කෑගල්ල","Kegalle","கேகாலை",7.25,80.35]];
+const ICON={m:"🌿",a:"🍀",g:"📊",e:"💸",i:"💵",coir:"🥥",poly:"📦",fert:"🧪",wage:"👷",plantw:"🌱",rent:"🏞️",elec:"💡",other:"📋",sale:"🛒"};
+const TABI=['<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.2a2.6 2.2 0 0 0-2.5-1.4c-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1 2-2.5 2a2.7 2.2 0 0 1-2.5-1.4M12 5.5v2.3M12 16.2v2.3"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3"/><path d="M7.5 15h9"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="14" rx="5" ry="6"/><path d="M12 8V4M9 5l1.5 2M15 5l-1.5 2M7 12H3M17 12h4M7.5 17L4 19M16.5 17l3.5 2"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M8 2v1M2 8h1M3.8 3.8l.7.7M12.2 3.8l-.7.7"/><path d="M8 20h9a4 4 0 0 0 0-8 5 5 0 0 0-9.5 1.5A3.3 3.3 0 0 0 8 20z"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12h11l2-8H6"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>'],TABK=["t_home","t_money","t_fert","t_dis","t_wx","t_mk","t_info"];
+const CATE=["coir","poly","fert","wage","plantw","rent","elec","other"],CATI=["sale","other"];
+
+let LI=ld("tf_lang",0),tab=0,recs=ld("tf_recs",[]),ferts=ld("tf_ferts",[]),area=ld("tf_area",{m:0,a:0}),mine=ld("tf_mine",[]),fsz=ld("tf_fs",0),MK=[],wxD=ld("tf_wd",0);
+const t=k=>D[k]?D[k][LI]:k;
+const money=n=>"Rs. "+Math.round(n).toLocaleString("en-US");
+const ic=k=>(ICON[k]?ICON[k]+" ":"")+t(k);
+const opts=(arr,f)=>arr.map(v=>`<option value="${v}">${f(v)}</option>`).join("");
+function keep(id,html){const e=$(id),v=e.value;e.innerHTML=html;if(v)e.value=v}
+
+function show(i){tab=i;document.querySelectorAll("section").forEach((s,j)=>s.classList.toggle("on",i===j));document.querySelectorAll(".tabs button").forEach((b,j)=>b.classList.toggle("on",i===j));window.scrollTo(0,0);if(i===4)loadWx();if(i===5)loadMk()}
+
+function applyLang(){
+document.documentElement.lang=["si","en","ta"][LI];$("lang").value=LI;
+document.querySelectorAll("[data-i]").forEach(e=>e.textContent=t(e.dataset.i));
+document.title=t("title");
+$("tabs").innerHTML=TABK.map((k,i)=>`<button data-a="show" data-v="${i}" class="${i===tab?"on":""}"><b>${TABI[i]}</b>${t(k)}</button>`).join("");
+keep("r-k",opts(["e","i"],v=>v==="e"?"💸 "+t("exp"):"💵 "+t("inc")));
+keep("r-t",opts(["m","a","g"],ic));keep("f-t",opts(["m","a"],ic));keep("m-t",opts(["m","a"],ic));
+keep("r-c",opts($("r-k").value==="i"?CATI:CATE,ic));
+keep("m-f",'<option value="">'+t("all")+"</option>"+opts(["m","a"],ic));$("m-s").placeholder="🔍 "+t("search");
+keep("w-d",WD.map((d,i)=>`<option value="${i}">${d[LI]}</option>`).join(""));$("w-d").value=wxD;
+$("areaM").value=area.m||"";$("areaA").value=area.a||"";
+$("dis").innerHTML=DIS.map(d=>`<details><summary>${d.i} ${d.n[LI]}</summary><div><p><b>🔎 ${t("sym")}:</b> ${d.s[LI]}</p><p><b>💊 ${t("trt")}:</b> ${d.t[LI]}</p></div></details>`).join("");
+renderData();mkRender();if(tab===4)loadWx()}
+
+function renderData(){
+const agg=ty=>{let i=0,e=0;recs.forEach(x=>{if(ty&&x.t!==ty)return;x.k==="i"?i+=x.a:e+=x.a});return{i,e,p:i-e}};
+const card=(h,c,ar)=>`<div class="panel"><div class="ttl">${h}</div><div class="line"><span>💵 ${t("income")}</span><b>${money(c.i)}</b></div><div class="line"><span>💸 ${t("expense")}</span><b>${money(c.e)}</b></div><div class="line big ${c.p<0?"neg":"pos"}"><span>${c.p<0?"📉 "+t("loss"):"📈 "+t("profit")}</span><span>${money(c.p)}</span></div>${ar>0?`<small>${t("perSq")}: ${money(c.p/ar)}</small>`:""}</div>`;
+$("sum").innerHTML=card(ic("m"),agg("m"),area.m)+card(ic("a"),agg("a"),area.a)+card(ic("g"),agg("g"),0)+card("🧮 "+t("total"),agg(),(+area.m||0)+(+area.a||0));
+const by={};recs.filter(x=>x.k==="e").forEach(x=>by[x.c]=(by[x.c]||0)+x.a);
+const tot=Object.values(by).reduce((s,v)=>s+v,0),ks=Object.keys(by).sort((a,b)=>by[b]-by[a]);
+$("brk").innerHTML=ks.length?ks.map(k=>`<div style="margin-top:8px"><div class="line"><span>${ic(k)}</span><b>${money(by[k])}</b></div><div class="bar"><i style="width:${Math.round(by[k]/tot*100)}%"></i></div></div>`).join(""):`<p class="mu">${t("none")}</p>`;
+const rs=[...recs].sort((a,b)=>b.d.localeCompare(a.d)||b.id-a.id);
+$("r-list").innerHTML=rs.length?rs.map(r=>`<div class="card item"><div><small>${r.d}</small><br><span class="big ${r.k==="i"?"pos":"neg"}">${r.k==="i"?"+":"−"} ${money(r.a)}</span><br><span class="tag">${ic(r.t)}</span><span class="tag">${ic(r.c)}</span>${r.n?"<br><small>"+esc(r.n)+"</small>":""}</div><button class="x" data-a="delR" data-v="${r.id}">🗑️</button></div>`).join(""):`<div class="card mu">${t("none")}</div>`;
+const now=new Date(today()+"T00:00:00").getTime();
+const fs=ferts.map(f=>{const nx=new Date(new Date(f.d+"T00:00:00").getTime()+f.i*864e5);return Object.assign({},f,{nx:nx,df:Math.round((nx.getTime()-now)/864e5)})}).sort((a,b)=>a.df-b.df);
+$("f-list").innerHTML=fs.length?fs.map(f=>`<div class="card item"><div><b>🧴 ${esc(f.n)||"—"}</b> <span class="tag">${ic(f.t)}</span><br><small>${t("lastOn")}: ${f.d}</small><br>${t("next")}: <b>${ymd(f.nx)}</b><br>${f.df<0?`<span class="tag bad">⚠️ ${t("overdue")}: ${-f.df}</span>`:f.df===0?`<span class="tag bad">⏰ ${t("todayT")}</span>`:`<span class="tag">⏳ ${t("inDays")}: ${f.df}</span>`}</div><button class="x" data-a="delF" data-v="${f.id}">🗑️</button></div>`).join(""):`<div class="card mu">${t("none")}</div>`}
+
+function addR(){const a=+$("r-a").value;if(!(a>0))return;recs.push({id:Date.now(),d:$("r-d").value||today(),k:$("r-k").value,t:$("r-t").value,c:$("r-c").value,a,n:$("r-n").value.trim()});sv("tf_recs",recs);$("r-a").value=$("r-n").value="";renderData()}
+function addF(){ferts.push({id:Date.now(),d:$("f-d").value||today(),t:$("f-t").value,n:$("f-n").value.trim(),i:+$("f-i").value||45});sv("tf_ferts",ferts);$("f-n").value="";renderData()}
+
+/* ===== calculator ===== */
+const C={cur:"0",acc:null,op:null,fresh:true};
+const cA=(a,o,b)=>o==="+"?a+b:o==="-"?a-b:o==="*"?a*b:(b===0?0:a/b),cF=n=>String(+n.toFixed(6));
+function calc(v){
+if(/^[0-9]$/.test(v)){C.cur=C.fresh||C.cur==="0"?v:C.cur+v;C.fresh=false}
+else if(v==="."){if(C.fresh){C.cur="0.";C.fresh=false}else if(!C.cur.includes("."))C.cur+="."}
+else if(v==="C"){C.cur="0";C.acc=null;C.op=null;C.fresh=true}
+else if(v==="="){if(C.op!==null){C.cur=cF(cA(C.acc,C.op,parseFloat(C.cur)));C.acc=null;C.op=null;C.fresh=true}}
+else if(v==="use"){const n=parseFloat(C.cur);if(n>0)$("r-a").value=n}
+else{if(C.op!==null&&!C.fresh){C.acc=cA(C.acc,C.op,parseFloat(C.cur));C.cur=cF(C.acc)}else C.acc=parseFloat(C.cur);C.op=v;C.fresh=true}
+$("c-disp").textContent=C.cur}
+
+/* ===== weather (Open-Meteo, no key) ===== */
+const wIcon=c=>c===0?"☀️":c<=2?"🌤️":c===3?"☁️":c<=48?"🌫️":c<=57?"🌦️":c<=67?"🌧️":c<=82?"🌧️":"⛈️";
+async function loadWx(){
+const d=WD[wxD],box=$("wx-box");box.innerHTML=`<p class="mu">${t("loading")}</p>`;
+try{
+const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${d[3]}&longitude=${d[4]}&daily=weathercode,temperature_2m_max,precipitation_sum&timezone=Asia%2FColombo&forecast_days=5`);
+const j=await r.json(),x=j.daily;
+const days=x.time.map((tm,i)=>({tm,c:x.weathercode[i],tp:x.temperature_2m_max[i],p:x.precipitation_sum[i]}));
+const wk=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const adv=days.slice(0,2).some(z=>z.p>=15)?["advRain","w"]:days.slice(0,4).every(z=>z.p<1)?["advDry",""]:["advOk",""];
+box.innerHTML=`<div class="wx">${days.map(z=>`<div class="wd"><b>${z.tm.slice(5)}</b><br><small>${wk[new Date(z.tm+"T00:00:00").getDay()]}</small><div class="e">${wIcon(z.c)}</div><b>${Math.round(z.tp)}°C</b><br><small>💧 ${z.p.toFixed(0)} mm</small></div>`).join("")}</div><div class="alert ${adv[1]}">${t(adv[0])}</div>`
+}catch(e){box.innerHTML=`<p class="neg">${t("wxErr")}</p>`}}
+
+/* ===== marketplace (Firebase Realtime DB via REST) ===== */
+async function loadMk(){
+if(!FB_URL){mkRender();return}
+try{const r=await fetch(FB_URL+"/listings.json");const j=await r.json()||{};MK=Object.entries(j).map(([k,v])=>(Object.assign({},v,{key:k})));$("mk-msg").textContent=""}catch(e){$("mk-msg").textContent=t("mkErr")}
+mkRender()}
+function mkRender(){
+const on=!!FB_URL;$("mk-form").style.display=on?"":"none";
+if(!on)$("mk-msg").textContent=t("mkOff");
+const q=$("m-s").value.trim().toLowerCase(),f=$("m-f").value;
+const L=MK.filter(i=>(!f||i.t===f)&&(!q||((i.d||"")+" "+(i.n||"")).toLowerCase().includes(q))).sort((a,b)=>b.ts-a.ts);
+$("mk-list").innerHTML=L.length?L.map(i=>`<div class="card item"><div><b>${ic(i.t)}</b> <span class="tag">${money(i.p)} / ${t("sqft")}</span><br>📦 ${Number(i.q).toLocaleString("en-US")} ${t("sqft")}<br>📍 ${esc(i.d)}<br>👤 ${esc(i.n||"")}<br>📞 <a href="tel:${esc(i.ph)}">${esc(i.ph)}</a>${i.no?"<br><small>"+esc(i.no)+"</small>":""}</div>${mine.includes(i.key)?`<button class="x" data-a="delL" data-v="${esc(i.key)}">🗑️</button>`:""}</div>`).join(""):(on?`<div class="card mu">${t("none")}</div>`:"")}
+async function postL(){
+const p=+$("m-p").value,q=+$("m-q").value,d=$("m-d").value.trim(),ph=$("m-ph").value.trim();
+if(!(p>0&&q>0&&d&&ph)){$("mk-msg").textContent=t("mkReq");return}
+const it={t:$("m-t").value,p,q,d,n:$("m-n").value.trim(),ph,no:$("m-no").value.trim(),ts:Date.now()};
+try{const r=await fetch(FB_URL+"/listings.json",{method:"POST",body:JSON.stringify(it)});const j=await r.json();if(!j.name)throw 0;mine.push(j.name);sv("tf_mine",mine);$("m-q").value=$("m-p").value=$("m-no").value="";$("mk-msg").textContent=t("posted");loadMk()}catch(e){$("mk-msg").textContent=t("mkErr")}}
+async function delL(k){try{await fetch(FB_URL+"/listings/"+k+".json",{method:"DELETE"});mine=mine.filter(x=>x!==k);sv("tf_mine",mine);loadMk()}catch(e){$("mk-msg").textContent=t("mkErr")}}
+
+/* ===== events ===== */
+document.addEventListener("click",e=>{const el=e.target.closest("[data-a]");if(!el)return;const v=el.dataset.v;
+const H=({show:()=>show(+v),addR,addF,calc:()=>calc(v),post:postL,
+delR:()=>{recs=recs.filter(x=>x.id!==+v);sv("tf_recs",recs);renderData()},
+delF:()=>{ferts=ferts.filter(x=>x.id!==+v);sv("tf_ferts",ferts);renderData()},
+delL:()=>delL(v)});const fn=H[el.dataset.a];if(fn)fn()});
+$("lang").onchange=e=>{LI=+e.target.value;sv("tf_lang",LI);applyLang()};
+$("r-k").onchange=()=>keep("r-c",opts($("r-k").value==="i"?CATI:CATE,ic));
+$("areaM").oninput=e=>{area.m=+e.target.value||0;sv("tf_area",area);renderData()};
+$("areaA").oninput=e=>{area.a=+e.target.value||0;sv("tf_area",area);renderData()};
+$("w-d").onchange=e=>{wxD=+e.target.value;sv("tf_wd",wxD);loadWx()};
+$("m-f").onchange=mkRender;$("m-s").oninput=mkRender;
+const FS=[17,20,23];
+function setFs(){document.documentElement.style.setProperty("--fs",FS[fsz]+"px")}
+$("fs").onclick=()=>{fsz=(fsz+1)%3;sv("tf_fs",fsz);setFs()};
+setFs();
+$("r-d").value=$("f-d").value=today();
+applyLang();show(0);
+</script>
+</body>
+</html>
