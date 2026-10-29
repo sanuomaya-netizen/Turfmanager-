@@ -53,6 +53,14 @@ a{color:var(--ac);font-weight:700}
 .wx{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
 .wd{flex:0 0 96px;text-align:center;border:1px solid var(--bd);border-radius:14px;padding:8px 4px;background:var(--bg)}
 .wd .e{font-size:2.2rem;line-height:1.2}
+.chatbox{height:46vh;min-height:240px;overflow-y:auto;background:var(--bg);border:1px solid var(--bd);border-radius:14px;padding:8px;margin-top:8px}
+.msg{max-width:86%;margin:6px 0;padding:8px 10px;border-radius:14px;background:var(--sf);border:1px solid var(--bd);word-wrap:break-word;overflow-wrap:anywhere;font-size:.95rem}
+.msg.me{margin-left:auto;background:var(--ac2)}
+.msg small{display:block;color:var(--mu);font-size:.72rem}
+.chatin{display:flex;gap:8px;margin-top:8px}.chatin input{flex:1}
+.sendb{border:0;border-radius:12px;background:var(--ac);color:#fff;font:inherit;font-weight:700;font-size:1.2rem;padding:0 18px;cursor:pointer}
+.sendb:disabled{opacity:.45}
+.btn.red{background:var(--bad)}
 .alert{border-radius:14px;padding:12px;margin-top:10px;font-weight:700;background:var(--ac2)}
 .alert.w{background:var(--warn);color:#222}
 </style>
@@ -60,7 +68,7 @@ a{color:var(--ac);font-weight:700}
 <body>
 <main>
 <header>
-<h1><span>🌱</span><span data-i="title"></span> <small style="font-size:.7rem;background:#2e7d32;color:#fff;border-radius:8px;padding:1px 7px">v7</small></h1>
+<h1><span>🌱</span><span data-i="title"></span> <small style="font-size:.7rem;background:#2e7d32;color:#fff;border-radius:8px;padding:1px 7px">v9</small></h1>
 <div class="tools"><button id="fs" aria-label="Text size">🔠</button><select id="lang"><option value="0">සිංහල</option><option value="1">English</option><option value="2">தமிழ்</option></select></div>
 </header>
 
@@ -141,6 +149,27 @@ a{color:var(--ac);font-weight:700}
 <!-- INFO -->
 <section id="s6">
 <div class="panel">
+<div class="ttl">💬 <span data-i="chatT"></span></div>
+<select id="c-room"></select>
+<p class="mu" id="c-msg" style="margin:6px 0 0"></p>
+<div class="chatbox" id="c-box"></div>
+<div class="chatin"><input id="c-in" maxlength="500" autocomplete="off"><button class="sendb" id="c-send" aria-label="send">➤</button></div>
+<p class="mu" style="font-size:.8rem" data-i="chatRules"></p>
+</div>
+</section>
+
+<section id="s7">
+<div class="panel">
+<div class="ttl">👤 <span data-i="profT"></span></div>
+<label><span data-i="pname"></span></label><input id="p-n" maxlength="40" autocomplete="off">
+<label>📞 <span data-i="pphone"></span></label><input id="p-ph" type="tel" inputmode="tel" maxlength="20">
+<label>📍 <span data-i="pdist"></span></label><select id="p-d"></select>
+<button class="btn" id="p-save">💾 <span data-i="psave"></span></button>
+<p class="mu" id="p-msg" style="margin:8px 0 0"></p>
+<p class="mu" style="font-size:.85rem" data-i="privNote"></p>
+<button class="btn red" id="p-del">🗑️ <span data-i="pdel"></span></button>
+</div>
+<div class="panel">
 <img class="me" alt="W. Suranga Chaminda" src="me.jpg">
 <p class="who">W. Suranga Chaminda</p>
 <p class="mu" style="text-align:center">👨‍🌾 <span data-i="role"></span></p>
@@ -156,7 +185,8 @@ window.onerror=function(m,u,l){var d=document.createElement("div");d.style.cssTe
    Paste your Firebase Realtime Database URL here, e.g.
    "https://my-turf-app-default-rtdb.firebaseio.com"
    Leave empty to disable the marketplace. */
-const FB_URL="";
+const FB_URL="https://turf-manager-80ba2-default-rtdb.asia-southeast1.firebasedatabase.app";
+const FB_KEY="AIzaSyCZKsV3wm-onWlEYlmZidf3Lk9YNSKdMxg";
 
 const $=id=>document.getElementById(id);
 function ld(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
@@ -199,6 +229,16 @@ mkErr:["සම්බන්ධ විය නොහැක. පසුව උත්�
 role:["මෙම ඇප් එකේ නිර්මාතෘ","Creator of this app","இந்த செயலியை உருவாக்கியவர்"],
 discTitle:["වගකීම් වලින් ඉවත් වීම","Disclaimer","பொறுப்புத் துறப்பு"],
 disc:["මෙම ඇප් එකේ ඇති රෝග සහ ප්‍රතිකාර තොරතුරු, ගණනය කිරීම් සහ අනෙකුත් දත්ත සාමාන්‍ය මග පෙන්වීමක් පමණි; ඒවායේ නිවැරදිභාවය ගැන සහතික නොවේ. වෙළඳපොළේ දැන්වීම් පළ කරන්නේ භාවිතා කරන්නන් විසිනි. ගනුදෙනු, මිල, තෘණ ගුණාත්මකභාවය සහ ඒවායින් වන ඕනෑම පාඩුවක් සම්බන්ධයෙන් නිර්මාතෘ වගකියන්නේ නැත. මිලදී ගැනීමට හෝ බෙහෙත් යෙදීමට පෙර ඔබම තහවුරු කරගන්න; අවශ්‍ය නම් කෘෂිකර්ම නිලධාරියෙකුගෙන් විමසන්න.","The disease and treatment information, calculations and other data in this app are general guidance only and are not guaranteed to be accurate. Marketplace listings are posted by users. The creator takes no responsibility for transactions, prices, turf quality or any loss arising from using this app. Verify everything yourself before buying or applying any treatment, and consult an agriculture officer when needed.","இந்த செயலியில் உள்ள நோய், சிகிச்சை தகவல்கள், கணக்கீடுகள் மற்றும் பிற தரவுகள் பொது வழிகாட்டல் மட்டுமே; அவற்றின் துல்லியத்திற்கு உத்தரவாதம் இல்லை. சந்தை விளம்பரங்களை பயனர்களே பதிவிடுகின்றனர். பரிவர்த்தனைகள், விலைகள், புல்லின் தரம் அல்லது இந்த செயலியைப் பயன்படுத்துவதால் ஏற்படும் எந்த இழப்புக்கும் உருவாக்குநர் பொறுப்பல்ல. வாங்குவதற்கு அல்லது சிகிச்சை அளிப்பதற்கு முன் நீங்களே சரிபார்த்து, தேவைப்பட்டால் விவசாய அதிகாரியிடம் கேளுங்கள்."]
+,t_chat:["කතාබහ","Chat","அரட்டை"],
+chatT:["වගාකරුවන්ගේ කතාබහ","Growers' chat","விவசாயிகள் அரட்டை"],
+roomAll:["සියලු දෙනා","Everyone","அனைவரும்"],roomDist:["මගේ දිස්ත්‍රික්කය","My district","என் மாவட்டம்"],
+typeMsg:["පණිවිඩයක් ලියන්න...","Type a message...","செய்தி எழுதுக..."],
+needProf:["කතාබහට එක්වීමට 'තොරතුරු' tab එකේ ඔබේ නම සුරකින්න.","Save your name in the Info tab to join the chat.","அரட்டையில் சேர 'தகவல்' தாவலில் உங்கள் பெயரை சேமிக்கவும்."],
+chatOff:["කතාබහ තවමත් සක්‍රිය කර නැත (සර්වර් සැකසුම අවශ්‍යයි).","Chat is not set up yet (server setup needed).","அரட்டை இன்னும் அமைக்கப்படவில்லை."],
+chatRules:["කරුණාකර ආචාරශීලීව කතා කරන්න. පණිවිඩ සියලු දෙනාට පෙනේ; පෞද්ගලික තොරතුරු නොදෙන්න.","Please be polite. Messages are public; do not share private information.","நாகரிகமாகப் பேசுங்கள். செய்திகள் அனைவருக்கும் தெரியும்; தனிப்பட்ட தகவல்களை பகிர வேண்டாம்."],
+profT:["මගේ පැතිකඩ","My profile","என் சுயவிவரம்"],pname:["නම","Name","பெயர்"],pphone:["දුරකථන අංකය (ඔබට පමණක්)","Phone (private to you)","தொலைபேசி (உங்களுக்கு மட்டும்)"],pdist:["දිස්ත්‍රික්කය","District","மாவட்டம்"],psave:["සුරකින්න","Save","சேமி"],psaved:["සුරැකුණා ✅","Saved ✅","சேமிக்கப்பட்டது ✅"],needName:["නම ඇතුළත් කරන්න.","Enter your name.","பெயரை உள்ளிடவும்."],
+privNote:["ඔබේ නම සහ දිස්ත්‍රික්කය කතාබහේ අන් අයට පෙනේ. දුරකථන අංකය ඔබට පමණක් පෙනෙන ලෙස ගබඩා වේ; වෙළඳපොළ දැන්වීමක් පළ කළ විට පමණක් එහි පෙනේ.","Your name and district are visible to others in chat. Your phone is stored privately; it only appears when you post a marketplace listing.","உங்கள் பெயரும் மாவட்டமும் அரட்டையில் பிறருக்குத் தெரியும். தொலைபேசி எண் தனிப்பட்டதாக சேமிக்கப்படும்; சந்தை விளம்பரம் இடும்போது மட்டுமே தெரியும்."],
+pdel:["මගේ දත්ත මකන්න","Delete my data","என் தரவை நீக்கு"],pdelC:["ඔබේ පැතිකඩ සහ ගිණුම සර්වර් එකෙන් මකන්නද?","Delete your profile and account from the server?","உங்கள் சுயவிவரத்தையும் கணக்கையும் சர்வரிலிருந்து நீக்கவா?"],pdeleted:["මකා දැමුවා.","Deleted.","நீக்கப்பட்டது."]
 };
 const DIS=[
 {i:"🟤",n:["දුඹුරු පැල්ලම් (Brown patch)","Brown patch","பழுப்பு திட்டுகள்"],s:["තෘණ වෘත්තාකාර දුඹුරු පැල්ලම් ලෙස මැරී යයි. තෙතමනය සහ වැසි කාලයේ වැඩියි.","Circular brown dead patches, worse in wet, humid weather.","வட்டவடிவ பழுப்பு திட்டுகளாக புல் காய்கிறது. ஈரப்பதத்தில் அதிகம்."],t:["වතුර දැමීම අඩු කර උදේ පමණක් දමන්න. ජලය බැස යන්න සලස්වන්න. නයිට්‍රජන් පොහොර අඩු කරන්න. දිලීර නාශකයක් (ලේබලය අනුව) යොදන්න.","Water less, only in the morning. Improve drainage. Reduce nitrogen fertilizer. Apply a fungicide as per label.","காலையில் மட்டும் குறைவாக நீர் ஊற்றவும். வடிகால் மேம்படுத்தவும். நைட்ரஜன் உரத்தை குறைக்கவும். லேபிளின்படி பூஞ்சைக்கொல்லி இடவும்."]},
@@ -207,7 +247,7 @@ const DIS=[
 {i:"🌾",n:["වල් පැළ","Weeds","களைகள்"],s:["තෘණ අතර වෙනත් පැළ වර්ධනය වේ.","Other plants grow among the turf.","புல்லுக்கிடையே பிற செடிகள் வளரும்."],t:["අතින් ගලවන්න. අවශ්‍ය නම් තෘණ වර්ගයට ගැලපෙන වල් නාශකයක් (ලේබලය අනුව) භාවිතා කරන්න.","Hand-pull. If needed, use a herbicide suited to your grass type, as per label.","கையால் பிடுங்கவும். தேவைப்பட்டால் புல் வகைக்கு ஏற்ற களைக்கொல்லியை லேபிளின்படி பயன்படுத்தவும்."]}];
 const WD=[["කොළඹ","Colombo","கொழும்பு",6.93,79.86],["ගම්පහ","Gampaha","கம்பஹா",7.09,79.99],["කළුතර","Kalutara","களுத்துறை",6.58,79.96],["මහනුවර","Kandy","கண்டி",7.29,80.63],["මාතලේ","Matale","மாத்தளை",7.47,80.62],["නුවරඑළිය","Nuwara Eliya","நுவரெலியா",6.97,80.77],["ගාල්ල","Galle","காலி",6.05,80.22],["මාතර","Matara","மாத்தறை",5.95,80.55],["හම්බන්තොට","Hambantota","அம்பாந்தோட்டை",6.12,81.12],["යාපනය","Jaffna","யாழ்ப்பாணம்",9.66,80.02],["කුරුණෑගල","Kurunegala","குருணாகல்",7.49,80.37],["පුත්තලම","Puttalam","புத்தளம்",8.03,79.83],["අනුරාධපුර","Anuradhapura","அனுராதபுரம்",8.31,80.40],["ත්‍රිකුණාමලය","Trincomalee","திருகோணமலை",8.57,81.23],["මඩකලපුව","Batticaloa","மட்டக்களப்பு",7.72,81.70],["බදුල්ල","Badulla","பதுளை",6.99,81.06],["රත්නපුර","Ratnapura","இரத்தினபுரி",6.68,80.40],["කෑගල්ල","Kegalle","கேகாலை",7.25,80.35]];
 const ICON={m:"🌿",a:"🍀",g:"📊",e:"💸",i:"💵",coir:"🥥",poly:"📦",fert:"🧪",wage:"👷",plantw:"🌱",rent:"🏞️",elec:"💡",other:"📋",sale:"🛒"};
-const TABI=['<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.2a2.6 2.2 0 0 0-2.5-1.4c-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1 2-2.5 2a2.7 2.2 0 0 1-2.5-1.4M12 5.5v2.3M12 16.2v2.3"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3"/><path d="M7.5 15h9"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="14" rx="5" ry="6"/><path d="M12 8V4M9 5l1.5 2M15 5l-1.5 2M7 12H3M17 12h4M7.5 17L4 19M16.5 17l3.5 2"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M8 2v1M2 8h1M3.8 3.8l.7.7M12.2 3.8l-.7.7"/><path d="M8 20h9a4 4 0 0 0 0-8 5 5 0 0 0-9.5 1.5A3.3 3.3 0 0 0 8 20z"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12h11l2-8H6"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>'],TABK=["t_home","t_money","t_fert","t_dis","t_wx","t_mk","t_info"];
+const TABI=['<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.2a2.6 2.2 0 0 0-2.5-1.4c-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1 2-2.5 2a2.7 2.2 0 0 1-2.5-1.4M12 5.5v2.3M12 16.2v2.3"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3"/><path d="M7.5 15h9"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="14" rx="5" ry="6"/><path d="M12 8V4M9 5l1.5 2M15 5l-1.5 2M7 12H3M17 12h4M7.5 17L4 19M16.5 17l3.5 2"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M8 2v1M2 8h1M3.8 3.8l.7.7M12.2 3.8l-.7.7"/><path d="M8 20h9a4 4 0 0 0 0-8 5 5 0 0 0-9.5 1.5A3.3 3.3 0 0 0 8 20z"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12h11l2-8H6"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-5.5A8 8 0 1 1 21 12z"/></svg>','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>'],TABK=["t_home","t_money","t_fert","t_dis","t_wx","t_mk","t_chat","t_info"];
 const CATE=["coir","poly","fert","wage","plantw","rent","elec","other"],CATI=["sale","other"];
 
 let LI=ld("tf_lang",0),tab=0,recs=ld("tf_recs",[]),ferts=ld("tf_ferts",[]),area=ld("tf_area",{m:0,a:0}),mine=ld("tf_mine",[]),fsz=ld("tf_fs",0),MK=[],wxD=ld("tf_wd",0);
@@ -217,7 +257,7 @@ const ic=k=>(ICON[k]?ICON[k]+" ":"")+t(k);
 const opts=(arr,f)=>arr.map(v=>`<option value="${v}">${f(v)}</option>`).join("");
 function keep(id,html){const e=$(id),v=e.value;e.innerHTML=html;if(v)e.value=v}
 
-function show(i){tab=i;document.querySelectorAll("section").forEach((s,j)=>s.classList.toggle("on",i===j));document.querySelectorAll(".tabs button").forEach((b,j)=>b.classList.toggle("on",i===j));window.scrollTo(0,0);if(i===4)loadWx();if(i===5)loadMk()}
+function show(i){tab=i;document.querySelectorAll("section").forEach((s,j)=>s.classList.toggle("on",i===j));document.querySelectorAll(".tabs button").forEach((b,j)=>b.classList.toggle("on",i===j));window.scrollTo(0,0);if(i===4)loadWx();if(i===5)loadMk();if(i===6)chatOpen();else chatClose()}
 
 function applyLang(){
 document.documentElement.lang=["si","en","ta"][LI];$("lang").value=LI;
@@ -229,6 +269,7 @@ keep("r-t",opts(["m","a","g"],ic));keep("f-t",opts(["m","a"],ic));keep("m-t",opt
 keep("r-c",opts($("r-k").value==="i"?CATI:CATE,ic));
 keep("m-f",'<option value="">'+t("all")+"</option>"+opts(["m","a"],ic));$("m-s").placeholder="🔍 "+t("search");
 keep("w-d",WD.map((d,i)=>`<option value="${i}">${d[LI]}</option>`).join(""));$("w-d").value=wxD;
+keep("p-d",WD.map((d,i)=>`<option value="${i}">${d[LI]}</option>`).join(""));$("c-in").placeholder=t("typeMsg");if(tab===6)buildRooms();
 $("areaM").value=area.m||"";$("areaA").value=area.a||"";
 $("dis").innerHTML=DIS.map(d=>`<details><summary>${d.i} ${d.n[LI]}</summary><div><p><b>🔎 ${t("sym")}:</b> ${d.s[LI]}</p><p><b>💊 ${t("trt")}:</b> ${d.t[LI]}</p></div></details>`).join("");
 renderData();mkRender();if(tab===4)loadWx()}
@@ -276,21 +317,82 @@ box.innerHTML=`<div class="wx">${days.map(z=>`<div class="wd"><b>${z.tm.slice(5)
 
 /* ===== marketplace (Firebase Realtime DB via REST) ===== */
 async function loadMk(){
-if(!FB_URL){mkRender();return}
+if(!FBON()){mkRender();return}
 try{const r=await fetch(FB_URL+"/listings.json");const j=await r.json()||{};MK=Object.entries(j).map(([k,v])=>(Object.assign({},v,{key:k})));$("mk-msg").textContent=""}catch(e){$("mk-msg").textContent=t("mkErr")}
 mkRender()}
 function mkRender(){
-const on=!!FB_URL;$("mk-form").style.display=on?"":"none";
+const on=FBON();$("mk-form").style.display=on?"":"none";
 if(!on)$("mk-msg").textContent=t("mkOff");
 const q=$("m-s").value.trim().toLowerCase(),f=$("m-f").value;
 const L=MK.filter(i=>(!f||i.t===f)&&(!q||((i.d||"")+" "+(i.n||"")).toLowerCase().includes(q))).sort((a,b)=>b.ts-a.ts);
-$("mk-list").innerHTML=L.length?L.map(i=>`<div class="card item"><div><b>${ic(i.t)}</b> <span class="tag">${money(i.p)} / ${t("sqft")}</span><br>📦 ${Number(i.q).toLocaleString("en-US")} ${t("sqft")}<br>📍 ${esc(i.d)}<br>👤 ${esc(i.n||"")}<br>📞 <a href="tel:${esc(i.ph)}">${esc(i.ph)}</a>${i.no?"<br><small>"+esc(i.no)+"</small>":""}</div>${mine.includes(i.key)?`<button class="x" data-a="delL" data-v="${esc(i.key)}">🗑️</button>`:""}</div>`).join(""):(on?`<div class="card mu">${t("none")}</div>`:"")}
+$("mk-list").innerHTML=L.length?L.map(i=>`<div class="card item"><div><b>${ic(i.t)}</b> <span class="tag">${money(i.p)} / ${t("sqft")}</span><br>📦 ${Number(i.q).toLocaleString("en-US")} ${t("sqft")}<br>📍 ${esc(i.d)}<br>👤 ${esc(i.n||"")}<br>📞 <a href="tel:${esc(i.ph)}">${esc(i.ph)}</a>${i.no?"<br><small>"+esc(i.no)+"</small>":""}</div>${(mine.includes(i.key)||(i.uid&&i.uid===myUid()))?`<button class="x" data-a="delL" data-v="${esc(i.key)}">🗑️</button>`:""}</div>`).join(""):(on?`<div class="card mu">${t("none")}</div>`:"")}
 async function postL(){
 const p=+$("m-p").value,q=+$("m-q").value,d=$("m-d").value.trim(),ph=$("m-ph").value.trim();
 if(!(p>0&&q>0&&d&&ph)){$("mk-msg").textContent=t("mkReq");return}
 const it={t:$("m-t").value,p,q,d,n:$("m-n").value.trim(),ph,no:$("m-no").value.trim(),ts:Date.now()};
-try{const r=await fetch(FB_URL+"/listings.json",{method:"POST",body:JSON.stringify(it)});const j=await r.json();if(!j.name)throw 0;mine.push(j.name);sv("tf_mine",mine);$("m-q").value=$("m-p").value=$("m-no").value="";$("mk-msg").textContent=t("posted");loadMk()}catch(e){$("mk-msg").textContent=t("mkErr")}}
-async function delL(k){try{await fetch(FB_URL+"/listings/"+k+".json",{method:"DELETE"});mine=mine.filter(x=>x!==k);sv("tf_mine",mine);loadMk()}catch(e){$("mk-msg").textContent=t("mkErr")}}
+try{const a=await getAuth();it.uid=a.uid;const j=await fbq("/listings.json","POST",it);if(!j||!j.name)throw 0;mine.push(j.name);sv("tf_mine",mine);$("m-q").value=$("m-p").value=$("m-no").value="";$("mk-msg").textContent=t("posted");loadMk()}catch(e){$("mk-msg").textContent=t("mkErr")}}
+async function delL(k){try{await fbq("/listings/"+k+".json","DELETE");mine=mine.filter(x=>x!==k);sv("tf_mine",mine);loadMk()}catch(e){$("mk-msg").textContent=t("mkErr")}}
+
+/* ===== accounts (Firebase anonymous auth) & chat ===== */
+function FBON(){return !!(FB_URL&&FB_KEY)}
+var AUTH=ld("tf_auth",null);
+var PROF=ld("tf_prof",{name:"",phone:"",dist:0});
+function myUid(){return (AUTH&&AUTH.uid)||""}
+function authReq(url,body){return fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(function(r){return r.json()})}
+function getAuth(){
+if(!FBON())return Promise.reject(new Error("off"));
+if(AUTH&&AUTH.tok&&AUTH.exp>Date.now()+60000)return Promise.resolve(AUTH);
+var p;
+if(AUTH&&AUTH.rt){p=authReq("https://securetoken.googleapis.com/v1/token?key="+FB_KEY,{grant_type:"refresh_token",refresh_token:AUTH.rt}).then(function(j){if(!j.id_token)throw new Error("refresh");return{rt:j.refresh_token,uid:j.user_id,tok:j.id_token,exp:Date.now()+(+j.expires_in)*1000}})}
+else{p=authReq("https://identitytoolkit.googleapis.com/v1/accounts:signUp?key="+FB_KEY,{returnSecureToken:true}).then(function(j){if(!j.idToken)throw new Error("signup");return{rt:j.refreshToken,uid:j.localId,tok:j.idToken,exp:Date.now()+(+j.expiresIn)*1000}})}
+return p.then(function(a){AUTH=a;sv("tf_auth",a);return a})}
+function fbq(path,method,body){return getAuth().then(function(a){
+var u=FB_URL+path+(path.indexOf("?")<0?"?":"&")+"auth="+encodeURIComponent(a.tok);
+var o={method:method||"GET"};if(body!==undefined)o.body=JSON.stringify(body);
+return fetch(u,o).then(function(r){if(!r.ok)throw new Error("http "+r.status);return r.json()})})}
+
+function fillProf(){$("p-n").value=PROF.name||"";$("p-ph").value=PROF.phone||"";$("p-d").value=PROF.dist||0}
+function saveProf(){
+var n=$("p-n").value.trim();if(!n){$("p-msg").textContent=t("needName");return}
+PROF={name:n,phone:$("p-ph").value.trim(),dist:+$("p-d").value||0};sv("tf_prof",PROF);
+if(!FBON()){$("p-msg").textContent=t("psaved");return}
+getAuth().then(function(a){return Promise.all([fbq("/profiles/"+a.uid+".json","PUT",{name:PROF.name,dist:PROF.dist}),fbq("/users/"+a.uid+".json","PUT",{phone:PROF.phone,created:Date.now()})])}).then(function(){$("p-msg").textContent=t("psaved")},function(){$("p-msg").textContent=t("mkErr")})}
+function delProf(){
+if(!confirm(t("pdelC")))return;
+var done=function(){PROF={name:"",phone:"",dist:0};sv("tf_prof",PROF);AUTH=null;sv("tf_auth",null);mine=[];sv("tf_mine",mine);fillProf();$("p-msg").textContent=t("pdeleted")};
+if(!FBON()||!myUid()){done();return}
+var u=myUid();
+Promise.all([fbq("/profiles/"+u+".json","DELETE"),fbq("/users/"+u+".json","DELETE")]).then(function(){return getAuth()}).then(function(a){return authReq("https://identitytoolkit.googleapis.com/v1/accounts:delete?key="+FB_KEY,{idToken:a.tok})}).then(done,function(){$("p-msg").textContent=t("mkErr")})}
+
+var room="all",cTimer=null,cLast="",lastSend=0;
+function roomPath(){return room==="all"?"all":"d"+(PROF.dist||0)}
+function buildRooms(){keep("c-room",'<option value="all">🌍 '+t("roomAll")+'</option><option value="d">📍 '+t("roomDist")+' ('+WD[PROF.dist||0][LI]+')</option>');$("c-room").value=room}
+function chatOpen(){
+buildRooms();
+var off=!FBON(),np=!PROF.name;
+$("c-msg").textContent=off?t("chatOff"):np?t("needProf"):"";
+$("c-in").disabled=$("c-send").disabled=(off||np);
+if(off)return;
+chatLoad();if(!cTimer)cTimer=setInterval(chatLoad,5000)}
+function chatClose(){if(cTimer){clearInterval(cTimer);cTimer=null}}
+function chatLoad(){
+fbq("/chat/"+roomPath()+".json?orderBy=%22%24key%22&limitToLast=60","GET").then(function(j){
+j=j||{};var arr=Object.keys(j).sort().map(function(k){return j[k]});
+var sig=roomPath()+":"+arr.length+":"+(arr.length?arr[arr.length-1].ts:0);if(sig===cLast)return;cLast=sig;
+var box=$("c-box"),near=box.scrollHeight-box.scrollTop-box.clientHeight<80;
+box.innerHTML=arr.length?arr.map(function(m){var d=new Date(m.ts),hh=pad(d.getHours())+":"+pad(d.getMinutes());return '<div class="msg'+(m.uid===myUid()?" me":"")+'"><small>'+esc(m.name||"")+' · '+hh+'</small>'+esc(m.text||"")+'</div>'}).join(""):'<p class="mu">'+t("none")+'</p>';
+if(near||!box.getAttribute("d")){box.scrollTop=box.scrollHeight;box.setAttribute("d","1")}
+$("c-msg").textContent=PROF.name?"":t("needProf")
+}).catch(function(){$("c-msg").textContent=t("mkErr")})}
+function chatSend(){
+var tx=$("c-in").value.trim();if(!tx||!PROF.name)return;
+if(Date.now()-lastSend<2000)return;lastSend=Date.now();
+var m={uid:"",name:PROF.name,text:tx.slice(0,500),ts:Date.now()};
+getAuth().then(function(a){m.uid=a.uid;return fbq("/chat/"+roomPath()+".json","POST",m)}).then(function(){$("c-in").value="";cLast="";chatLoad()},function(){$("c-msg").textContent=t("mkErr")})}
+$("c-send").onclick=chatSend;
+$("c-in").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();chatSend()}};
+$("c-room").onchange=function(e){room=e.target.value;cLast="";$("c-box").removeAttribute("d");chatLoad()};
+$("p-save").onclick=saveProf;$("p-del").onclick=delProf;
 
 /* ===== events ===== */
 document.addEventListener("click",e=>{const el=e.target.closest("[data-a]");if(!el)return;const v=el.dataset.v;
@@ -309,7 +411,7 @@ function setFs(){document.documentElement.style.setProperty("--fs",FS[fsz]+"px")
 $("fs").onclick=()=>{fsz=(fsz+1)%3;sv("tf_fs",fsz);setFs()};
 setFs();
 $("r-d").value=$("f-d").value=today();
-applyLang();show(0);
+applyLang();fillProf();show(0);
 </script>
 </body>
 </html>
